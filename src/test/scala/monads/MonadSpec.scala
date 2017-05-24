@@ -77,13 +77,13 @@ object YourMonoids {
     def |+|(other: A): A = ev.combine(a, other)
   }
 
-  implicit val intAdd: Monoid[Int] = ???
+  implicit def intAdd: Monoid[Int] = ???
 
-  implicit val intMult: Monoid[Int] = ???
+  implicit def intMult: Monoid[Int] = ???
 
-  implicit val boolAnd: Monoid[Boolean] = ???
+  implicit def boolAnd: Monoid[Boolean] = ???
 
-  implicit val boolOr: Monoid[Boolean] = ???
+  implicit def boolOr: Monoid[Boolean] = ???
 
   // tip: this monoid still needs an additional parameter to make sense
   implicit def optMonoid[A]: Monoid[Option[A]] = ???
