@@ -6,59 +6,62 @@ class MonadSpec extends WordSpecLike with Matchers {
   import YourMonoids.MonoidOps
 
   "You" should {
-    "create an int addition monoid" ignore {
+    "create an int addition monoid" in {
       import YourMonoids.intAdd
 
       13 |+| 12 |+| 17 shouldBe 42
       13 |+| 12 |+| 17 shouldBe 13 |+| (12 |+| 17)
       10 |+| intAdd.empty shouldBe 10
     }
-    "create an int multiplication monoid" ignore {
+    "create an int multiplication monoid" in {
       import YourMonoids.intMult
 
       4 |+| 3 |+| 2 shouldBe 24
       4 |+| 3 |+| 2 shouldBe 4 |+| (3 |+| 2)
       5 |+| 1 shouldBe 5
     }
-    "create a boolean AND monoid" ignore {
+    "create a boolean AND monoid" in {
       import YourMonoids.boolAnd
 
       true |+| true shouldBe true
       true |+| false shouldBe false
       true |+| boolAnd.empty shouldBe true
     }
-    "create a boolean OR monoid" ignore {
+    "create a boolean OR monoid" in {
       import YourMonoids.boolOr
 
       true |+| true shouldBe true
       true |+| false shouldBe true
       false |+| boolOr.empty shouldBe false
     }
-    "create an option monoid" ignore {
+    "create an option monoid" in {
       import YourMonoids.optMonoid
+      import YourMonoids.boolAnd
+      import YourMonoids.intAdd
 
       Option(10) |+| Option(4) shouldBe Some(14)
       Option(true) |+| Option(false) shouldBe Some(false)
       Option(10) |+| None shouldBe None
-      Option(10) |+| optMonoid.empty shouldBe Some(10)
+      Option(10) |+| optMonoid[Int].empty shouldBe Some(10)
 
     }
-    "create a list monoid" ignore {
+    "create a list monoid" in {
       import YourMonoids.listMonoid
 
       List(1, 2, 3, 4, 5) |+| List(2, 3, 4, 5) shouldBe List(1, 2, 3, 4, 5, 2, 3, 4, 5)
       List(1, 2) |+| listMonoid.empty shouldBe List(1, 2)
     }
-    "create a map monoid" ignore {
+    "create a map monoid" in {
       import YourMonoids.mapMonoid
+      import YourMonoids.listMonoid
 
       case class User(name: String, age: Int)
 
-      val users1: Map[String, Set[User]] = Map("B" -> Set(User("Brian", 19)))
-      val users2: Map[String, Set[User]] = Map("B" -> Set(User("Bob", 33)))
+      val users1: Map[String, List[User]] = Map("B" -> List(User("Brian", 19)))
+      val users2: Map[String, List[User]] = Map("B" -> List(User("Bob", 33)))
 
-      users1 |+| users2 shouldBe Map("B" -> Set(User("Brian", 19), User("Bob", 33)))
-      users1 |+| mapMonoid.empty shouldBe users1
+      users1 |+| users2 shouldBe Map("B" -> List(User("Brian", 19), User("Bob", 33)))
+      users1 |+| mapMonoid[String, List[User]].empty shouldBe users1
     }
   }
 }
@@ -74,18 +77,50 @@ object YourMonoids {
     def |+|(other: A): A = ev.combine(a, other)
   }
 
-  implicit val intAdd: Monoid[Int] = ???
-  implicit val intMult: Monoid[Int] = ???
-  implicit val boolAnd: Monoid[Boolean] = ???
-  implicit val boolOr: Monoid[Boolean] = ???
+  implicit val intAdd: Monoid[Int] = new Monoid[Int] {
+    def empty: Int = 0
+    def combine(one: Int, another: Int): Int = one + another
+  }
+  implicit val intMult: Monoid[Int] = new Monoid[Int] {
+    def empty: Int = 1
+    def combine(one: Int, another: Int): Int = one * another
+  }
+  implicit val boolAnd: Monoid[Boolean] = new Monoid[Boolean] {
+    def empty: Boolean = true
+    def combine(one: Boolean, another: Boolean): Boolean = one && another
+  }
+  implicit val boolOr: Monoid[Boolean] = new Monoid[Boolean] {
+    def empty: Boolean = false
+    def combine(one: Boolean, another: Boolean): Boolean = one || another
+  }
 
   // tip: this monoid still needs an additional parameter to make sense
-  implicit def optMonoid[A]: Monoid[Option[A]] = ???
+  implicit def optMonoid[A: Monoid]: Monoid[Option[A]] = new Monoid[Option[A]] {
+    def empty: Option[A] = Some(implicitly[Monoid[A]].empty)
+    def combine(one: Option[A], another: Option[A]): Option[A] =
+      for {
+        a <- one
+        b <- another
+      } yield a |+| b
+  }
+
+  implicit def listMonoid[A]: Monoid[List[A]] = new Monoid[List[A]] {
+    def empty: List[A] = List.empty[A]
+    def combine(one: List[A], another: List[A]): List[A] = one ++ another
+  }
 
   // tip: this monoid still needs an additional parameter to make sense
-  implicit def listMonoid[A]: Monoid[List[A]] = ???
-
-  // tip: this monoid still needs an additional parameter to make sense
-  implicit def mapMonoid[K, V]: Monoid[Map[K, V]] = ???
+  implicit def mapMonoid[K, V: Monoid]: Monoid[Map[K, V]] = new Monoid[Map[K, V]] {
+    def empty: Map[K, V] = Map.empty
+    def combine(map1: Map[K, V], map2: Map[K, V]): Map[K, V] =
+      map1.foldLeft(map2) {
+        case (accumulatedMap, (key, values)) =>
+          accumulatedMap.updated(
+            key = key,
+            value = implicitly[Monoid[V]]
+              .combine(values, accumulatedMap.getOrElse(key, implicitly[Monoid[V]].empty))
+          )
+      }
+  }
 
 }
