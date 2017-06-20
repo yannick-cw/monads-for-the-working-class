@@ -2,22 +2,22 @@ package monads
 
 import org.scalatest.{Matchers, WordSpec}
 
-class FunctorSpec extends WordSpec with Matchers{
+class FunctorSpec extends WordSpec with Matchers {
 
   import YourFunctors._
 
   "You" should {
-    "create a NonEmptyList functor" in {
+    "create a NonEmptyList functor" ignore {
       import YourFunctors.nelFunctor
 
       NonEmptyList(1, 2, 3).map(_ * 2) shouldEqual NonEmptyList(2, 4, 6)
     }
 
-    "create a Validated functor" in {
+    "create a Validated functor" ignore {
       import YourFunctors.validatedFunctor
 
       Validated.valid(2).map(_ * 3) shouldEqual Validated.valid(6)
-      Validated.invalid[Int]("My Error").map(_ * 3)
+      Validated.invalid[Int]("My Error").map(_ * 3) shouldEqual Validated.invalid("My Error")
     }
   }
 }
@@ -32,7 +32,6 @@ object YourFunctors {
     def map[B](f: A => B): F[B] = ev.map(fa)(f)
   }
 
-
   /* NonEmptyList (NEL) */
   case class NonEmptyList[T](values: T*) {
     require(values.nonEmpty)
@@ -43,8 +42,8 @@ object YourFunctors {
   }
 
   /* Validated */
-  abstract class  Validated[V]
-  case class Valid[V]  (v: V) extends Validated[V]
+  abstract class Validated[V]
+  case class Valid[V](v: V) extends Validated[V]
   case class Invalid[V](i: String) extends Validated[V]
 
   object Validated {
