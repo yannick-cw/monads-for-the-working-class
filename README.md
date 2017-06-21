@@ -2,6 +2,6 @@
 
 This repository holds the demo code for the Monads for the working class presentation.
 
-## Presentation
-
-https://speakerdeck.com/yannickcw/monads-for-the-working-class
+## Presentations
+* Monoid: https://speakerdeck.com/yannickcw/monads-for-the-working-class
+* Functor: https://speakerdeck.com/sebruck/functors-1
