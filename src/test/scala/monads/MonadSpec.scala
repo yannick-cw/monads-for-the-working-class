@@ -108,9 +108,9 @@ object Transformer {
 
   case class FutureOption[A](
       value: Future[Option[A]])(implicit ec: ExecutionContext, optMon: Monad[Option], futMonad: Monad[Future]) {
-    def pure(fa: A): FutureOption[A] = ???
+    def pure(fa: A): FutureOption[A]                         = ???
     def flatMap[B](f: A => FutureOption[B]): FutureOption[B] = ???
-    def map[B](f: A => B): FutureOption[B] = ???
+    def map[B](f: A => B): FutureOption[B]                   = ???
   }
 
 }
