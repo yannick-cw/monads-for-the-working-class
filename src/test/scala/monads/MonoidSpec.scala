@@ -2,7 +2,7 @@ package monads
 
 import org.scalatest.{Matchers, WordSpecLike}
 
-class MonadSpec extends WordSpecLike with Matchers {
+class MonoidSpec extends WordSpecLike with Matchers {
   import YourMonoids.MonoidOps
 
   "You" should {
