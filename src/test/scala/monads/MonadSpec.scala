@@ -10,10 +10,11 @@ import scala.util.Try
 
 class MonadSpec extends AsyncWordSpecLike with Matchers {
 
+  // slides at https://speakerdeck.com/yannickcw/monads-for-the-working-class
   import YourMonads.MonadOps
 
   "You" should {
-    // easy
+    // easy, look at the slides if you need guidance :)
     "create a Monad for Option" ignore {
       import YourMonads.optionMonad
 
@@ -94,11 +95,12 @@ object YourMonads {
 //    def flatten[A](fa: M[M[A]]): M[A]
   }
 
+  // helper for using M(A).yourFlatMap..
   implicit class MonadOps[M[_], A](a: M[A])(implicit ev: Monad[M]) {
     def yourFlatMap[B](f: A => M[B]): M[B] = ev.flatMap(a, f)
   }
 
-  // todo: challenges yourself - please do not use the `flatMap` or `map` of from standard library
+  // todo: challenge yourself - please do not use the `flatMap` or `map` from standard library
   implicit def optionMonad: Monad[Option] = ???
 
   implicit def listMonad: Monad[List] = ???
