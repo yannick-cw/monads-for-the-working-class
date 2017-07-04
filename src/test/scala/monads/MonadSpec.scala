@@ -89,6 +89,9 @@ object YourMonads {
     // todo: make you life easier, implement map here once and for all!
     // tip: you can do it by just using pure and flatMap
     // def map[A, B](fa: M[A])(f: (A) => B): M[B] = ???
+
+    // todo: implement flatten in terms of flatMap or implement flatMap interms of flatten and map
+//    def flatten[A](fa: M[M[A]]): M[A]
   }
 
   implicit class MonadOps[M[_], A](a: M[A])(implicit ev: Monad[M]) {
