@@ -62,6 +62,7 @@ class MonadSpec extends AsyncWordSpecLike with Matchers {
       import YourMonads.futureMonad
       import Transformer.FutureOption
 
+      // mhh how to flatMap over a nested Monad?
       def thisCouldBeARealDb(id: Int): FutureOption[String] =
         FutureOption(Future.successful(Some("User")))
 
