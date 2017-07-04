@@ -1,11 +1,13 @@
 package monads
 
 import monads.YourFunctors.Functor
-import org.scalatest.{Matchers, WordSpecLike}
+import org.scalatest.{AsyncWordSpecLike, Matchers, WordSpecLike}
 
-import scala.util.Try
+import scala.concurrent.{ExecutionContext, Future, Promise}
+import scala.concurrent.ExecutionContext.global
+import scala.util.{Failure, Success, Try}
 
-class MonadSpec extends WordSpecLike with Matchers {
+class MonadSpec extends AsyncWordSpecLike with Matchers {
 
   import YourMonads.MonadOps
 
@@ -35,6 +37,20 @@ class MonadSpec extends WordSpecLike with Matchers {
 
       List.empty[String].yourFlatMap(duplicate) shouldBe List.empty[String]
     }
+
+    "create a Monad for Future - now it gets difficult" ignore {
+      import YourMonads.futureMonad
+
+      def getName(userId: Int): Future[String]  = Future.successful("Bob")
+      def getAge(name: String): Future[Int]     = Future.successful(22)
+
+      getName(2)
+        .yourFlatMap(name =>
+          getAge(name).map { age =>
+            name shouldBe "Bob"
+            age shouldBe 22
+        })
+    }
   }
 }
 
@@ -58,5 +74,7 @@ object YourMonads {
 
   // todo: challenges yourself - please do not use the `flatMap` or `map` of List
   implicit def listMonad: Monad[List] = ???
+
+  implicit def futureMonad(implicit ec: ExecutionContext): Monad[Future] = ???
 
 }
