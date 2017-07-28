@@ -41,7 +41,7 @@ class MonoidSpec extends WordSpecLike with Matchers {
 
       Option(10) |+| Option(4) shouldBe Some(14)
       Option(true) |+| Option(false) shouldBe Some(false)
-      Option(10) |+| None shouldBe None
+      Option(10) |+| None shouldBe Some(10)
       Option(10) |+| optMonoid[Int].empty shouldBe Some(10)
 
     }
